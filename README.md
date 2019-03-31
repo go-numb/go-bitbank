@@ -77,4 +77,4 @@ func main() {
 
 ## License
 
-[MIT](http://go-numb.mit-license.org)
+[MIT](https://github.com/go-numb/go-bitbank/blob/master/LICENSE)
