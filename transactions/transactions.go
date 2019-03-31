@@ -3,13 +3,15 @@ package transaction
 import (
 	"encoding/json"
 	"errors"
-	"fmt"
 	"net/http"
+	"net/url"
 	"path"
 	"strings"
 	"time"
 
-	"gitlab.com/k-terashima/go-bitbank/types"
+	e "github.com/go-numb/go-bitbank/errors"
+
+	"github.com/go-numb/go-bitbank/types"
 )
 
 const (
@@ -58,9 +60,14 @@ func (p *Request) Set(pair string, op ...interface{}) {
 }
 
 func (p *Request) Get() (Transactions, error) {
-	url := BASEURL + path.Join(p.Pair, PATH, p.AtDate)
+	u, err := url.ParseRequestURI(BASEURL)
+	if err != nil {
+		return nil, err
+	}
 
-	req, err := http.NewRequest("GET", url, nil)
+	u.Path = path.Join(p.Pair, PATH, p.AtDate)
+
+	req, err := http.NewRequest("GET", u.String(), nil)
 	if err != nil {
 		return nil, err
 	}
@@ -70,12 +77,15 @@ func (p *Request) Get() (Transactions, error) {
 	if err != nil {
 		return nil, err
 	}
+	if res.StatusCode != 200 {
+		return nil, errors.New(res.Status)
+	}
 	defer res.Body.Close()
 
 	var resp Response
 	json.NewDecoder(res.Body).Decode(&resp)
 	if resp.Success != 1 {
-		return nil, errors.New(fmt.Sprintf("response error, not success. error code is %d", resp.Data.Code))
+		return nil, e.Handler(resp.Data.Code, err)
 	}
 
 	return resp.Data.Transactions, nil

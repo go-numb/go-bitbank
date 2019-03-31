@@ -3,12 +3,14 @@ package ticker
 import (
 	"encoding/json"
 	"errors"
-	"fmt"
 	"net/http"
+	"net/url"
 	"path"
 	"strings"
 
-	"gitlab.com/k-terashima/go-bitbank/types"
+	e "github.com/go-numb/go-bitbank/errors"
+
+	"github.com/go-numb/go-bitbank/types"
 )
 
 const (
@@ -42,25 +44,31 @@ func (p *Request) Set(pair string) {
 }
 
 func (p *Request) Get() (Ticker, error) {
-	url := BASEURL + path.Join(p.Pair, PATH)
-
-	req, err := http.NewRequest("GET", url, nil)
+	u, err := url.ParseRequestURI(BASEURL)
 	if err != nil {
 		return Ticker{}, err
 	}
-	// req.Header.Set("Content-Type", "application/json")
+	u.Path = path.Join(p.Pair, PATH)
+
+	req, err := http.NewRequest("GET", u.String(), nil)
+	if err != nil {
+		return Ticker{}, err
+	}
 
 	c := new(http.Client)
 	res, err := c.Do(req)
 	if err != nil {
 		return Ticker{}, err
 	}
+	if res.StatusCode != 200 {
+		return Ticker{}, errors.New(res.Status)
+	}
 	defer res.Body.Close()
 
 	var resp Response
 	json.NewDecoder(res.Body).Decode(&resp)
 	if resp.Success != 1 {
-		return Ticker{}, errors.New(fmt.Sprintf("response error, not success. error code is %d", resp.Data.Code))
+		return Ticker{}, e.Handler(resp.Data.Code, err)
 	}
 
 	return resp.Data, nil

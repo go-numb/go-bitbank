@@ -3,13 +3,15 @@ package ohlcv
 import (
 	"encoding/json"
 	"errors"
-	"fmt"
 	"net/http"
+	"net/url"
 	"path"
 	"strings"
 	"time"
 
-	"gitlab.com/k-terashima/go-bitbank/types"
+	e "github.com/go-numb/go-bitbank/errors"
+
+	"github.com/go-numb/go-bitbank/types"
 )
 
 type Timespan int
@@ -39,9 +41,11 @@ type Request struct {
 	// YYYMMDD string
 	AtDate string
 }
+
 type Response struct {
 	Success int `json:"success"`
 	Data    struct {
+		Code        int        `json:"code"`
 		Candlestick []OHLCVs   `json:"candlestick"`
 		Timestamp   types.Time `json:"timestamp"`
 	} `json:"data"`
@@ -85,9 +89,13 @@ func (p *Request) Set(pair string, timespan Timespan, t time.Time) {
 }
 
 func (p *Request) Get() (OHLCVs, error) {
-	url := BASEURL + path.Join(p.Pair, PATH, p.Timespan, p.AtDate)
+	u, err := url.ParseRequestURI(BASEURL)
+	if err != nil {
+		return OHLCVs{}, err
+	}
+	u.Path = path.Join(p.Pair, PATH, p.Timespan, p.AtDate)
 
-	req, err := http.NewRequest("GET", url, nil)
+	req, err := http.NewRequest("GET", u.String(), nil)
 	if err != nil {
 		return OHLCVs{}, err
 	}
@@ -97,12 +105,15 @@ func (p *Request) Get() (OHLCVs, error) {
 	if err != nil {
 		return OHLCVs{}, err
 	}
+	if res.StatusCode != 200 {
+		return OHLCVs{}, errors.New(res.Status)
+	}
 	defer res.Body.Close()
 
 	var resp Response
 	json.NewDecoder(res.Body).Decode(&resp)
 	if resp.Success != 1 {
-		return OHLCVs{}, errors.New(fmt.Sprintf("response error, not success. error code is %d", resp.Success))
+		return OHLCVs{}, e.Handler(resp.Data.Code, err)
 	}
 
 	return resp.Data.Candlestick[0], nil

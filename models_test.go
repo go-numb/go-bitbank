@@ -6,13 +6,13 @@ import (
 	"testing"
 	"time"
 
-	"gitlab.com/k-terashima/go-bitbank/privates/orders"
+	"github.com/go-numb/go-bitbank/privates/orders"
 
-	"gitlab.com/k-terashima/go-bitbank/privates/trades"
+	"github.com/go-numb/go-bitbank/privates/trades"
 
 	"github.com/BurntSushi/toml"
 
-	"gitlab.com/k-terashima/go-bitbank/ohlcv"
+	"github.com/go-numb/go-bitbank/ohlcv"
 
 	"gonum.org/v1/gonum/stat"
 )
@@ -79,7 +79,7 @@ func TestTicker(t *testing.T) {
 func TestOHLCV(t *testing.T) {
 	c := New("", "")
 
-	c.OHLCV.Set("btc_jpy", ohlcv.Timespan1D, time.Now().Add(-24*time.Hour))
+	c.OHLCV.Set("btc_jpy", ohlcv.Timespan1m, time.Now().Add(-24*time.Hour))
 	res, err := c.OHLCV.Get()
 	if err != nil {
 		t.Error(err)

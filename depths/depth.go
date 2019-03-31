@@ -8,7 +8,7 @@ import (
 	"path"
 	"strings"
 
-	"gitlab.com/k-terashima/go-bitbank/types"
+	"github.com/go-numb/go-bitbank/types"
 )
 
 const (

@@ -2,13 +2,13 @@ package assets
 
 import (
 	"encoding/json"
-	"errors"
-	"fmt"
 	"net/http"
 	"net/url"
 	"path"
 
-	"gitlab.com/k-terashima/go-bitbank/privates/auth"
+	e "github.com/go-numb/go-bitbank/errors"
+
+	"github.com/go-numb/go-bitbank/privates/auth"
 )
 
 const (
@@ -70,7 +70,7 @@ func (p *Request) Get() (Assets, error) {
 	var resp Response
 	json.NewDecoder(res.Body).Decode(&resp)
 	if resp.Success != 1 {
-		return Assets{}, errors.New(fmt.Sprintf("response error, not success. error code is %d", resp.Data.Code))
+		return Assets{}, e.Handler(resp.Data.Code, err)
 	}
 
 	return resp.Data.Assets, nil

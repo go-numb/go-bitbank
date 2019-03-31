@@ -2,12 +2,13 @@ package status
 
 import (
 	"encoding/json"
-	"errors"
-	"fmt"
 	"net/http"
+	"net/url"
 	"strings"
 
-	"gitlab.com/k-terashima/go-bitbank/privates/auth"
+	e "github.com/go-numb/go-bitbank/errors"
+
+	"github.com/go-numb/go-bitbank/privates/auth"
 )
 
 const (
@@ -45,9 +46,13 @@ func (p *Request) Set(pairs ...string) {
 }
 
 func (p *Request) Get() (Statuses, error) {
-	url := BASEURL + PATH
+	u, err := url.ParseRequestURI(BASEURL)
+	if err != nil {
+		return Statuses{}, err
+	}
+	u.Path = PATH
 
-	req, err := http.NewRequest("GET", url, nil)
+	req, err := http.NewRequest("GET", u.String(), nil)
 	if err != nil {
 		return Statuses{}, err
 	}
@@ -64,7 +69,7 @@ func (p *Request) Get() (Statuses, error) {
 	var resp Response
 	json.NewDecoder(res.Body).Decode(&resp)
 	if resp.Success != 1 {
-		return Statuses{}, errors.New(fmt.Sprintf("response error, not success. error code is %d", resp.Success))
+		return Statuses{}, e.Handler(resp.Data.Code, err)
 	}
 
 	// gets pairs指定がなければすべて返す

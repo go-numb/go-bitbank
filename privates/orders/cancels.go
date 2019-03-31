@@ -8,7 +8,7 @@ import (
 	"path"
 	"strings"
 
-	"gitlab.com/k-terashima/go-bitbank/privates/auth"
+	"github.com/go-numb/go-bitbank/privates/auth"
 )
 
 func (p *Request) Cancel(pair string, orderID int) (Order, error) {

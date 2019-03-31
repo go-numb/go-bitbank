@@ -8,8 +8,8 @@ import (
 	"net/http"
 	"path"
 
-	"gitlab.com/k-terashima/go-bitbank/privates/auth"
-	"gitlab.com/k-terashima/go-bitbank/types"
+	"github.com/go-numb/go-bitbank/privates/auth"
+	"github.com/go-numb/go-bitbank/types"
 )
 
 const (

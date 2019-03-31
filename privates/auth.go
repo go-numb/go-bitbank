@@ -1,10 +1,10 @@
 package private
 
 import (
-	"gitlab.com/k-terashima/go-bitbank/privates/assets"
-	"gitlab.com/k-terashima/go-bitbank/privates/orders"
-	"gitlab.com/k-terashima/go-bitbank/privates/status"
-	"gitlab.com/k-terashima/go-bitbank/privates/trades"
+	"github.com/go-numb/go-bitbank/privates/assets"
+	"github.com/go-numb/go-bitbank/privates/orders"
+	"github.com/go-numb/go-bitbank/privates/status"
+	"github.com/go-numb/go-bitbank/privates/trades"
 )
 
 type Auth struct {
