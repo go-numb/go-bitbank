@@ -1,8 +1,9 @@
 package orders
 
 import (
+	e "github.com/go-numb/go-bitbank/errors"
+
 	"encoding/json"
-	"errors"
 	"fmt"
 	"net/http"
 	"path"
@@ -33,7 +34,7 @@ func (p *Request) Cancel(pair string, orderID int) (Order, error) {
 	var resp Response
 	json.NewDecoder(res.Body).Decode(&resp)
 	if resp.Success != 1 {
-		return Order{}, errors.New(fmt.Sprintf("response error, not success. error code is %d", resp.Data.Code))
+		return Order{}, e.Handler(resp.Data.Code, err)
 	}
 
 	return resp.Data.Order, nil
@@ -69,7 +70,7 @@ func (p *Request) Cancels(pair string, orders ...int) (Order, error) {
 	var resp Response
 	json.NewDecoder(res.Body).Decode(&resp)
 	if resp.Success != 1 {
-		return Order{}, errors.New(fmt.Sprintf("response error, not success. error code is %d", resp.Data.Code))
+		return Order{}, e.Handler(resp.Data.Code, err)
 	}
 
 	return resp.Data.Order, nil

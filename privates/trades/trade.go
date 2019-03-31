@@ -2,11 +2,11 @@ package trades
 
 import (
 	"encoding/json"
-	"errors"
-	"fmt"
 	"net/http"
 	"net/url"
 	"path"
+
+	e "github.com/go-numb/go-bitbank/errors"
 
 	"github.com/google/go-querystring/query"
 
@@ -90,7 +90,7 @@ func (p *Request) Get() (Trades, error) {
 	var resp Response
 	json.NewDecoder(res.Body).Decode(&resp)
 	if resp.Success != 1 {
-		return Trades{}, errors.New(fmt.Sprintf("response error, not success. error code is %d", resp.Data.Code))
+		return Trades{}, e.Handler(resp.Data.Code, err)
 	}
 
 	return resp.Data.Trades, nil

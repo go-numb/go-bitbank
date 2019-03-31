@@ -3,10 +3,11 @@ package orders
 import (
 	"bytes"
 	"encoding/json"
-	"errors"
-	"fmt"
 	"net/http"
+	"net/url"
 	"path"
+
+	e "github.com/go-numb/go-bitbank/errors"
 
 	"github.com/go-numb/go-bitbank/privates/auth"
 	"github.com/go-numb/go-bitbank/types"
@@ -55,13 +56,18 @@ type Order struct {
 }
 
 func (p *Request) Post(b *Body) (Order, error) {
-	url := BASEURL + path.Join(VERSION, PATH, "order")
+	u, err := url.ParseRequestURI(BASEURL)
+	if err != nil {
+		return Order{}, err
+	}
+	u.Path = path.Join(VERSION, PATH, "order")
+
 	j, err := json.Marshal(b)
 	if err != nil {
 		return Order{}, err
 	}
 
-	req, err := http.NewRequest("POST", url, bytes.NewReader(j))
+	req, err := http.NewRequest("POST", u.String(), bytes.NewReader(j))
 	if err != nil {
 		return Order{}, err
 	}
@@ -78,7 +84,7 @@ func (p *Request) Post(b *Body) (Order, error) {
 	var resp Response
 	json.NewDecoder(res.Body).Decode(&resp)
 	if resp.Success != 1 {
-		return Order{}, errors.New(fmt.Sprintf("response error, not success. error code is %d", resp.Data.Code))
+		return Order{}, e.Handler(resp.Data.Code, err)
 	}
 
 	return resp.Data.Order, nil

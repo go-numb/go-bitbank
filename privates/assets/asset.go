@@ -21,6 +21,7 @@ type Request struct {
 	Token  string
 	Secret string
 }
+
 type Response struct {
 	Success int `json:"success"`
 	Data    struct {
