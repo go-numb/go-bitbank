@@ -2,6 +2,7 @@ package bitbank
 
 import (
 	"fmt"
+	"math"
 	"strings"
 	"testing"
 	"time"
@@ -52,16 +53,28 @@ func TestTransactions(t *testing.T) {
 	fmt.Printf("%.3f - %.1f\n", avgS, sellsideV)
 }
 
-func BenchmarkDepth(t *testing.B) {
+func TestDepth(t *testing.T) {
 	c := New("", "")
 
 	c.Depth.Set("btc_jpy")
-	_, err := c.Depth.Get()
+	res, err := c.Depth.Get()
 	if err != nil {
 		t.Error(err)
 	}
 
 	// fmt.Printf("%+v\n", res)
+
+	// 板範囲内待機注文集計
+	monitor := 0.001
+	askvol, bidvol := res.Aggregate(monitor)
+
+	fmt.Printf("ask volume: %.2f, bid volume: %.2f\n", askvol, bidvol)
+
+	// 仮に設定した約定枚数で板を喰ってみる
+	bestask, bestbid := res.Eat(10.0, 10.0)
+	fmt.Printf("ask price: %d, bid price: %d\n", bestask, bestbid)
+	mid := int(math.RoundToEven(float64(bestask+bestbid) / 2))
+	fmt.Printf("temp spread: %d(%d){%d}(%d)%d\n", bestask, bestask-mid, mid, mid-bestbid, bestbid)
 }
 
 func TestTicker(t *testing.T) {
@@ -109,6 +122,7 @@ func TestStatus(t *testing.T) {
 
 func TestAssets(t *testing.T) {
 	var s Sign
+
 	toml.DecodeFile("../.keys/bitbank.toml", &s)
 	c := New(s.Token, s.Secret)
 

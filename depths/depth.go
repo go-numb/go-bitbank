@@ -2,11 +2,14 @@ package depth
 
 import (
 	"encoding/json"
-	"errors"
-	"fmt"
+	"math"
 	"net/http"
+	"net/url"
 	"path"
 	"strings"
+	"sync"
+
+	e "github.com/go-numb/go-bitbank/errors"
 
 	"github.com/go-numb/go-bitbank/types"
 )
@@ -26,6 +29,7 @@ type Response struct {
 }
 
 type Depth struct {
+	Code      int         `json:"code"`
 	Asks      types.Books `json:"asks,string"`
 	Bids      types.Books `json:"bids,string"`
 	Timestamp types.Time  `json:"timestamp"`
@@ -37,9 +41,13 @@ func (p *Request) Set(pair string) {
 }
 
 func (p *Request) Get() (Depth, error) {
-	url := BASEURL + path.Join(p.Pair, PATH)
+	u, err := url.ParseRequestURI(BASEURL)
+	if err != nil {
+		return Depth{}, err
+	}
+	u.Path = path.Join(p.Pair, PATH)
 
-	req, err := http.NewRequest("GET", url, nil)
+	req, err := http.NewRequest("GET", u.String(), nil)
 	if err != nil {
 		return Depth{}, err
 	}
@@ -54,8 +62,98 @@ func (p *Request) Get() (Depth, error) {
 	var resp Response
 	json.NewDecoder(res.Body).Decode(&resp)
 	if resp.Success != 1 {
-		return Depth{}, errors.New(fmt.Sprintf("response error, not success. error code is %d", resp.Success))
+		return Depth{}, e.Handler(resp.Data.Code, err)
+	}
+	return resp.Data, nil
+}
+
+// Aggregate now price * monitoringRangePcnt 範囲の待機板集計
+func (p Depth) Aggregate(monitoringRangePcnt float64) (float64, float64) {
+	var wg sync.WaitGroup
+	var askvol, bidvol float64
+
+	askL := len(p.Asks.Books)
+	bidL := len(p.Bids.Books)
+	if askL <= 0 || bidL <= 0 { // 素材がある価格確認
+		return 0, 0
 	}
 
-	return resp.Data, nil
+	// 範囲集計の準備，最終約定ではなく均衡金額
+	var mid float64
+	mid = float64(p.Asks.Books[0].Price+p.Bids.Books[0].Price) / 2
+
+	monitor := mid * monitoringRangePcnt
+
+	wg.Add(1)
+	go func() {
+		for _, v := range p.Asks.Books {
+			askvol += v.Size
+
+			if mid+monitor < v.Price {
+				break
+			}
+		}
+
+		wg.Done()
+	}()
+
+	wg.Add(1)
+	go func() {
+		for _, v := range p.Bids.Books {
+			bidvol += v.Size
+
+			if mid-monitor > v.Price {
+				break
+			}
+		}
+
+		wg.Done()
+	}()
+
+	wg.Wait()
+
+	return askvol, bidvol
+}
+
+// Eat 約定があったものとして現在の待機板を喰ってみる
+func (p Depth) Eat(eatAsk, eatBid float64) (bestask int, bestbid int) {
+	var wg sync.WaitGroup
+
+	askL := len(p.Asks.Books)
+	bidL := len(p.Bids.Books)
+	if askL <= 0 || bidL <= 0 { // 素材がある価格確認
+		return 0, 0
+	}
+
+	wg.Add(1)
+	go func() {
+		for _, v := range p.Asks.Books {
+			eatAsk -= v.Size
+
+			if eatAsk < 0 {
+				bestask = int(math.RoundToEven(v.Price - 1.0))
+				break
+			}
+		}
+
+		wg.Done()
+	}()
+
+	wg.Add(1)
+	go func() {
+		for _, v := range p.Bids.Books {
+			eatBid -= v.Size
+
+			if eatBid < 0 {
+				bestbid = int(math.RoundToEven(v.Price + 1.0))
+				break
+			}
+		}
+
+		wg.Done()
+	}()
+
+	wg.Wait()
+
+	return bestask, bestbid
 }
