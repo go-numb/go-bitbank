@@ -30,9 +30,16 @@ type Response struct {
 
 type Depth struct {
 	Code      int         `json:"code"`
-	Asks      types.Books `json:"asks,string"`
-	Bids      types.Books `json:"bids,string"`
-	Timestamp types.Time  `json:"timestamp"`
+	Asks      types.Books `json:"asks,a,string"`
+	Bids      types.Books `json:"bids,b,string"`
+	Timestamp types.Time  `json:"timestamp,t"`
+}
+
+type DepthDiff struct {
+	Code      int         `json:"code"`
+	Asks      types.Books `json:"a,string"`
+	Bids      types.Books `json:"b,string"`
+	Timestamp types.Time  `json:"t"`
 }
 
 // Set pair string
@@ -74,7 +81,7 @@ func (p Depth) Aggregate(monitoringRangePcnt float64) (float64, float64) {
 
 	askL := len(p.Asks.Books)
 	bidL := len(p.Bids.Books)
-	if askL <= 0 || bidL <= 0 { // 素材がある価格確認
+	if askL <= 0 || bidL <= 0 { // 素材があるか確認
 		return 0, 0
 	}
 
@@ -121,7 +128,7 @@ func (p Depth) Eat(eatAsk, eatBid float64) (bestask int, bestbid int) {
 
 	askL := len(p.Asks.Books)
 	bidL := len(p.Bids.Books)
-	if askL <= 0 || bidL <= 0 { // 素材がある価格確認
+	if askL <= 0 || bidL <= 0 { // 素材があるか確認
 		return 0, 0
 	}
 

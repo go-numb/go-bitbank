@@ -71,6 +71,41 @@ func main() {
 }
 ```
 
+## websocket/realtime
+```
+func main() {
+	c, err := Connect(false)
+	if err != nil {
+		t.Error(err)
+	}
+
+	channels := []string{
+		realtime.Depth,
+		realtime.Ticker,
+		realtime.Transactions,
+	}
+	pairs := []string{realtime.BTCJPY}
+	c.SetSubscribes(channels, pairs)
+	go c.Realtime(channels, pairs)
+
+	for {
+		select {
+		case v := <-c.Subscriber:
+			switch v.(type) {
+			case depth.Depth:
+				fmt.Printf("%+v\n", v)
+			case depth.DepthDiff:
+				fmt.Printf("%+v\n", v)
+			case transaction.Transaction:
+				fmt.Printf("%+v\n", v)
+			case ticker.Ticker:
+				fmt.Printf("%+v\n", v)
+			}
+		}
+	}
+}
+```
+
 ## Author
 
 [@_numbP](https://twitter.com/_numbP)
