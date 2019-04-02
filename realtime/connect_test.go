@@ -114,11 +114,17 @@ func TestRealtime(t *testing.T) {
 				fmt.Printf("%+v\n", v)
 			case depth.DepthDiff:
 				fmt.Printf("%+v\n", v)
-			case transaction.Transaction:
+			case transaction.Transactions:
 				fmt.Printf("%+v\n", v)
 			case ticker.Ticker:
 				fmt.Printf("%+v\n", v)
+
+			case error:
+				goto EndF
 			}
 		}
 	}
+
+EndF:
+	c.Close()
 }

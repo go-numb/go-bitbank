@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"time"
 
 	"github.com/labstack/gommon/log"
 
@@ -59,6 +60,8 @@ func (p *Client) Close() error {
 		return err
 	}
 
+	close(p.Subscriber)
+
 	return nil
 }
 
@@ -111,8 +114,21 @@ func (ws *Client) SetSubscribes(chs, pairs []string) error {
 	return nil
 }
 
-func (p *Client) Realtime(channels, pairs []string) error {
+func (p *Client) Realtime(channels, pairs []string) {
 	done := make(chan error)
+	defer p.Close()
+
+	go func() { // Ping -> Pong gets error
+		var tickerPing = time.NewTicker(15 * time.Second)
+		for {
+			select {
+			case <-tickerPing.C:
+				if err := p.Ping(); err != nil {
+					done <- errors.New("ping error, " + err.Error())
+				}
+			}
+		}
+	}()
 
 	go func() {
 		for {
@@ -181,5 +197,7 @@ func (p *Client) Realtime(channels, pairs []string) error {
 		}
 	}()
 
-	return <-done
+	// interface{}にエラーが入るよ
+	e := <-done
+	p.Subscriber <- e
 }

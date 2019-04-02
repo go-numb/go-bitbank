@@ -74,17 +74,17 @@ func main() {
 ## websocket/realtime
 ```
 func main() {
-	c, err := Connect(false)
+	c, err := realtime.Connect(false)
 	if err != nil {
 		t.Error(err)
 	}
 
 	channels := []string{
-		realtime.Depth,
-		realtime.Ticker,
+		realtime.Depth, 
+		ealtime.Ticker,
 		realtime.Transactions,
 	}
-	pairs := []string{realtime.BTCJPY}
+	pairs := []string{BTCJPY}
 	c.SetSubscribes(channels, pairs)
 	go c.Realtime(channels, pairs)
 
@@ -96,13 +96,19 @@ func main() {
 				fmt.Printf("%+v\n", v)
 			case depth.DepthDiff:
 				fmt.Printf("%+v\n", v)
-			case transaction.Transaction:
+			case transaction.Transactions:
 				fmt.Printf("%+v\n", v)
 			case ticker.Ticker:
 				fmt.Printf("%+v\n", v)
+
+			case error:
+				goto EndF
 			}
 		}
 	}
+
+EndF:
+	c.Close()
 }
 ```
 
