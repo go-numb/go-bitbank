@@ -93,7 +93,7 @@ func main() {
 	// 購読チャンネルをbitbankに通知
 	c.SetSubscribes(channels, pairs)
 	// Readを整備
-	go c.Realtime(channels, pairs)
+	go c.Realtime()
 
 	for {
 		select {

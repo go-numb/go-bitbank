@@ -114,7 +114,7 @@ func (ws *Client) SetSubscribes(chs, pairs []string) error {
 	return nil
 }
 
-func (p *Client) Realtime(channels, pairs []string) {
+func (p *Client) Realtime() {
 	done := make(chan error)
 	defer p.Close()
 
