@@ -81,11 +81,18 @@ func main() {
 
 	channels := []string{
 		realtime.Depth, 
-		ealtime.Ticker,
+		realtime.Ticker,
 		realtime.Transactions,
 	}
-	pairs := []string{BTCJPY}
+	pairs := []string{
+		realtime.BTCJPY,
+		realtime.XRPJPY,
+		realtime.ETHBTC,
+	}
+
+	// 購読チャンネルをbitbankに通知
 	c.SetSubscribes(channels, pairs)
+	// Readを整備
 	go c.Realtime(channels, pairs)
 
 	for {

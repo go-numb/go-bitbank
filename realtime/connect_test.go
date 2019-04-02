@@ -102,7 +102,11 @@ func TestRealtime(t *testing.T) {
 	}
 
 	channels := []string{Depth, Ticker, Transactions}
-	pairs := []string{BTCJPY}
+	pairs := []string{
+		BTCJPY,
+		XRPJPY,
+		ETHBTC,
+	}
 	c.SetSubscribes(channels, pairs)
 	go c.Realtime(channels, pairs)
 
