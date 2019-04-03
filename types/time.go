@@ -15,8 +15,7 @@ func (p *Time) UnmarshalJSON(b []byte) error {
 	if err != nil {
 		return err
 	}
-	t := int64(i) / int64(time.Microsecond)
-	p.Time = time.Unix(t, 0)
+	p.Time = time.Unix(int64(i)/1e3, (int64(i)%1e3)*int64(time.Millisecond)/int64(time.Nanosecond))
 
 	return nil
 }

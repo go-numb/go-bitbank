@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
-	"fmt"
 	"time"
 
 	"github.com/labstack/gommon/log"
@@ -173,10 +172,10 @@ func (p *Client) Realtime() {
 				if err != nil {
 					continue
 				}
-				// fmt.Printf("Transactions: %v(%d): %s\n", vt, n, string(v))
+				// fmt.Printf("Transactions: %s\n", string(v))
 				var res transaction.Transactions
 				json.Unmarshal(v, &res)
-				fmt.Printf("Transactions: %+v\n", res)
+				// fmt.Printf("Transactions: %+v\n", res)
 				p.Subscriber <- res
 
 			case bytes.HasPrefix(channelName, []byte(Ticker)):
