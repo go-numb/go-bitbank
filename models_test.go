@@ -156,13 +156,15 @@ func TestTrades(t *testing.T) {
 func TestOrdersPost(t *testing.T) {
 	var s Sign
 	toml.DecodeFile("../.keys/bitbank.toml", &s)
+
+	fmt.Printf("%+v\n", s)
 	c := New(s.Token, s.Secret)
 
 	res, err := c.Auth.Orders.Post(&orders.Body{
-		Pair:   "bcc_btc",
+		Pair:   "bcc_jpy",
 		Amount: 0.0001,
-		Price:  0.04082002,
-		Side:   "sell",
+		Price:  30000.0,
+		Side:   "buy",
 		Type:   "limit",
 	})
 	if err != nil {

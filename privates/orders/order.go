@@ -3,6 +3,7 @@ package orders
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"net/url"
 	"path"
@@ -34,15 +35,13 @@ type Body struct {
 }
 
 type Response struct {
-	Success int `json:"success"`
-	Data    struct {
-		Code  int   `json:"code"`
-		Order Order `json:"order"`
-	} `json:"data"`
+	Success int   `json:"success"`
+	Data    Order `json:"data"`
 }
 
 type Order struct {
-	OrderID         int        `json:"order_id"`
+	Code            int        `json:"code"`
+	OrderID         int64      `json:"order_id"`
 	Pair            string     `json:"pair"`
 	Side            string     `json:"side"`
 	Type            string     `json:"type"`
@@ -82,10 +81,12 @@ func (p *Request) Post(b *Body) (Order, error) {
 	defer res.Body.Close()
 
 	var resp Response
-	json.NewDecoder(res.Body).Decode(&resp)
+	if err := json.NewDecoder(res.Body).Decode(&resp); err != nil {
+		fmt.Println(err) // OK: order_idがint64
+	}
 	if resp.Success != 1 {
 		return Order{}, e.Handler(resp.Data.Code, err)
 	}
 
-	return resp.Data.Order, nil
+	return resp.Data, nil
 }

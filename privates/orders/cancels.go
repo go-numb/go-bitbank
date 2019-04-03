@@ -43,7 +43,7 @@ func (p *Request) Cancel(pair string, orderID int) (Order, error) {
 		return Order{}, e.Handler(resp.Data.Code, err)
 	}
 
-	return resp.Data.Order, nil
+	return resp.Data, nil
 }
 
 func (p *Request) Cancels(pair string, orders ...int) (Order, error) {
@@ -83,5 +83,5 @@ func (p *Request) Cancels(pair string, orders ...int) (Order, error) {
 		return Order{}, e.Handler(resp.Data.Code, err)
 	}
 
-	return resp.Data.Order, nil
+	return resp.Data, nil
 }
