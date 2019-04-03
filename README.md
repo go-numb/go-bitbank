@@ -74,6 +74,7 @@ func main() {
 ## websocket/realtime
 ```
 func main() {
+Reconnect:
 	c, err := realtime.Connect(false)
 	if err != nil {
 		t.Error(err)
@@ -109,12 +110,21 @@ func main() {
 				fmt.Printf("%+v\n", v)
 
 			case error:
+				if strings.HasSuffix(d.Error(), "close 1005 (no status)") {
+					log.Error("reconnect gets websocket: ", d.Error())
+					ws.Close()
+					goto Break
+				}
 				goto EndF
 			}
 		}
 	}
 
-EndF:
+Break: // Reconnect用
+	c.Close()
+	goto Reconnect
+
+EndF: // ほんちゃんErrorのほう（done <- errors.New()でもOK）
 	c.Close()
 }
 ```

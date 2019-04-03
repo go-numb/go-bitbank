@@ -118,7 +118,7 @@ func (p *Client) Realtime() {
 	defer p.Close()
 
 	go func() { // Ping -> Pong gets error
-		var tickerPing = time.NewTicker(15 * time.Second)
+		var tickerPing = time.NewTicker(25 * time.Second)
 		for {
 			select {
 			case <-tickerPing.C:
@@ -136,7 +136,7 @@ func (p *Client) Realtime() {
 				if websocket.IsUnexpectedCloseError(err, websocket.CloseGoingAway, websocket.CloseAbnormalClosure) {
 					log.Printf("error: %v", err)
 				}
-				break
+				done <- errors.New("pong error, " + err.Error())
 			}
 
 			channelName, _, _, err := jsonparser.Get(msg, "[1]", "room_name")
@@ -198,5 +198,7 @@ func (p *Client) Realtime() {
 
 	// interface{}にエラーが入るよ
 	e := <-done
+	// if strings.Contains(e, "")
+
 	p.Subscriber <- e
 }
