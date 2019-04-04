@@ -3,7 +3,10 @@ package realtime
 import (
 	"bytes"
 	"encoding/json"
-	"errors"
+
+	"github.com/pkg/errors"
+
+	"fmt"
 	"time"
 
 	"github.com/labstack/gommon/log"
@@ -18,6 +21,12 @@ import (
 
 	"github.com/buger/jsonparser"
 	"github.com/gorilla/websocket"
+)
+
+const (
+	HeartbeatIntervalSecond time.Duration = 25
+	ReadTimeoutSecond       time.Duration = 300
+	WriteTimeoutSecond      time.Duration = 5
 )
 
 type Request struct {
@@ -42,6 +51,10 @@ func Connect(isPublic bool) (*Client, error) {
 		WriteBufferSize: 1024,
 	}
 	head := http.Header{"Accept-Encoding": []string{"gzip"}}
+	head.Set("User-Agent", "Go client")
+	head.Set("Cache-Control", "no-cache")
+	head.Set("Pragma", "no-cache")
+	// head.Set("Sec-WebSocket-Version", "13")
 
 	conn, _, err := d.Dial(u.String(), head)
 	if err != nil {
@@ -49,8 +62,12 @@ func Connect(isPublic bool) (*Client, error) {
 	}
 
 	return &Client{
-		conn:       conn,
-		Subscriber: make(chan interface{}),
+		conn: conn,
+
+		// old
+		// Subscriber: make(chan interface{}),
+		// new
+		Subscriber: make(chan Recive),
 	}, nil
 }
 
@@ -66,10 +83,10 @@ func (p *Client) Close() error {
 
 const (
 	// Channel prefix
-	Ticker       = "ticker_"
-	Depth        = "depth_"
-	Transactions = "transactions_"
-	Candlestick  = "candlestick_"
+	ChTicker       = "ticker_"
+	ChDepth        = "depth_"
+	ChTransactions = "transactions_"
+	ChCandlestick  = "candlestick_"
 
 	// Channel depth all or diff
 	DepthAll  = "whole_"
@@ -88,21 +105,33 @@ const (
 )
 
 // SetSubscribes sets to ws write
-func (ws *Client) SetSubscribes(chs, pairs []string) error {
+func (ws *Client) setSubscribes(chs, pairs []string) error {
 	for _, v := range chs {
 		switch {
-		case strings.HasPrefix(Ticker, v):
+		case strings.HasPrefix(ChTicker, v):
 			for _, pair := range pairs {
-				ws.SubscribeTicker(pair)
+				if err := ws.SubscribeTicker(pair); err != nil {
+					log.Fatal(err)
+				}
+				time.Sleep(10 * time.Millisecond)
 			}
-		case strings.HasPrefix(Depth, v):
+		case strings.HasPrefix(ChDepth, v):
 			for _, pair := range pairs {
-				ws.SubscribeWholeDepth(pair)
-				ws.SubscribeDiffDepth(pair)
+				if err := ws.SubscribeWholeDepth(pair); err != nil {
+					log.Fatal(err)
+				}
+				time.Sleep(10 * time.Millisecond)
+				if err := ws.SubscribeDiffDepth(pair); err != nil {
+					log.Fatal(err)
+				}
+				time.Sleep(10 * time.Millisecond)
 			}
-		case strings.HasPrefix(Transactions, v):
+		case strings.HasPrefix(ChTransactions, v):
 			for _, pair := range pairs {
-				ws.SubscribeTransactions(pair)
+				if err := ws.SubscribeTransactions(pair); err != nil {
+					log.Fatal(err)
+				}
+				time.Sleep(10 * time.Millisecond)
 			}
 
 		default:
@@ -113,17 +142,25 @@ func (ws *Client) SetSubscribes(chs, pairs []string) error {
 	return nil
 }
 
-func (p *Client) Realtime() {
+func (p *Client) Realtime(chs, pairs []string) {
 	done := make(chan error)
-	defer p.Close()
+	fmt.Printf("subscribes: %+v,%+v\n", chs, pairs)
+	if err := p.setSubscribes(chs, pairs); err != nil {
+		p.Subscriber <- Recive{
+			Types: TypeError,
+			Error: err,
+		}
+	}
 
-	go func() { // Ping -> Pong gets error
-		var tickerPing = time.NewTicker(25 * time.Second)
+	go func() {
+		var tickerPong = time.NewTicker(HeartbeatIntervalSecond * time.Second)
+		defer tickerPong.Stop()
 		for {
 			select {
-			case <-tickerPing.C:
+			case <-tickerPong.C:
+				p.conn.SetWriteDeadline(time.Now().Add(WriteTimeoutSecond * time.Second))
 				if err := p.Ping(); err != nil {
-					done <- errors.New("ping error, " + err.Error())
+					done <- err
 				}
 			}
 		}
@@ -131,12 +168,10 @@ func (p *Client) Realtime() {
 
 	go func() {
 		for {
+			p.conn.SetReadDeadline(time.Now().Add(ReadTimeoutSecond * time.Second))
 			_, msg, err := p.conn.ReadMessage()
 			if err != nil {
-				if websocket.IsUnexpectedCloseError(err, websocket.CloseGoingAway, websocket.CloseAbnormalClosure) {
-					log.Printf("error: %v", err)
-				}
-				done <- errors.New("pong error, " + err.Error())
+				done <- err
 			}
 
 			channelName, _, _, err := jsonparser.Get(msg, "[1]", "room_name")
@@ -145,7 +180,7 @@ func (p *Client) Realtime() {
 			}
 
 			switch {
-			case bytes.HasPrefix(channelName, []byte(Depth+DepthAll)):
+			case bytes.HasPrefix(channelName, []byte(ChDepth+DepthAll)):
 				v, _, _, err := jsonparser.Get(msg, "[1]", "message", "data")
 				if err != nil {
 					continue
@@ -154,9 +189,13 @@ func (p *Client) Realtime() {
 				var res depth.Depth
 				json.Unmarshal(v, &res)
 				// fmt.Printf("DepthAll: %+v\n", res)
-				p.Subscriber <- res
+				p.Subscriber <- Recive{
+					Types: TypeDepthAll,
+					Pairs: channelNameToPairs(channelName),
+					Depth: res,
+				}
 
-			case bytes.HasPrefix(channelName, []byte(Depth+DepthDiff)):
+			case bytes.HasPrefix(channelName, []byte(ChDepth+DepthDiff)):
 				v, _, _, err := jsonparser.Get(msg, "[1]", "message", "data")
 				if err != nil {
 					continue
@@ -165,9 +204,17 @@ func (p *Client) Realtime() {
 				var res depth.DepthDiff
 				json.Unmarshal(v, &res)
 				// fmt.Printf("DepthDiff: %+v\n", res)
-				p.Subscriber <- res
+				p.Subscriber <- Recive{
+					Types: TypeDepthDiff,
+					Pairs: channelNameToPairs(channelName),
+					Depth: depth.Depth{
+						Asks:      res.Asks,
+						Bids:      res.Bids,
+						Timestamp: res.Timestamp,
+					},
+				}
 
-			case bytes.HasPrefix(channelName, []byte(Transactions)):
+			case bytes.HasPrefix(channelName, []byte(ChTransactions)):
 				v, _, _, err := jsonparser.Get(msg, "[1]", "message", "data", "transactions")
 				if err != nil {
 					continue
@@ -176,9 +223,13 @@ func (p *Client) Realtime() {
 				var res transaction.Transactions
 				json.Unmarshal(v, &res)
 				// fmt.Printf("Transactions: %+v\n", res)
-				p.Subscriber <- res
+				p.Subscriber <- Recive{
+					Types:        TypeTransactions,
+					Pairs:        channelNameToPairs(channelName),
+					Transactions: res,
+				}
 
-			case bytes.HasPrefix(channelName, []byte(Ticker)):
+			case bytes.HasPrefix(channelName, []byte(ChTicker)):
 				v, _, _, err := jsonparser.Get(msg, "[1]", "message", "data")
 				if err != nil {
 					continue
@@ -187,18 +238,49 @@ func (p *Client) Realtime() {
 				var res ticker.Ticker
 				json.Unmarshal(v, &res)
 				// fmt.Printf("Ticker: %+v\n", res)
-				p.Subscriber <- res
+				p.Subscriber <- Recive{
+					Types:   TypeTicker,
+					Pairs:   channelNameToPairs(channelName),
+					Tickers: res,
+				}
 
 			default: // 基本的には見ない
-				log.Debug("------------------------------------------------------------------------------------------------------------")
-				done <- errors.New("undefined data")
+				log.Debug("undefined data ------------------------------------------------------------------------------------------------------------")
+
+				p.Subscriber <- Recive{
+					Types: TypeError,
+					Error: errors.New("undifined error"),
+				}
 			}
 		}
 	}()
 
-	// interface{}にエラーが入るよ
-	e := <-done
-	// if strings.Contains(e, "")
+	err := <-done
+	p.Subscriber <- Recive{
+		Types: TypeError,
+		Error: errors.Wrap(err, "websocket error, "),
+	}
+}
 
-	p.Subscriber <- e
+func channelNameToPairs(name []byte) Pairs {
+	switch {
+	case bytes.HasSuffix(name, []byte(BTCJPY)):
+		return PairBTCJPY
+	case bytes.HasSuffix(name, []byte(XRPJPY)):
+		return PairXRPJPY
+	case bytes.HasSuffix(name, []byte(BCCJPY)):
+		return PairBCCJPY
+	case bytes.HasSuffix(name, []byte(MNAJPY)):
+		return PairMNAJPY
+	case bytes.HasSuffix(name, []byte(ETHBTC)):
+		return PairETHBTC
+	case bytes.HasSuffix(name, []byte(LTCBTC)):
+		return PairLTCBTC
+	case bytes.HasSuffix(name, []byte(MNABTC)):
+		return PairMNABTC
+	case bytes.HasSuffix(name, []byte(BCCBTC)):
+		return PairBCCBTC
+	}
+
+	return PairBTCJPY
 }

@@ -75,6 +75,8 @@ func main() {
 ```
 func main() {
 Reconnect:
+	wsError := make(chan error)
+	
 	c, err := realtime.Connect(false)
 	if err != nil {
 		t.Error(err)
@@ -91,41 +93,38 @@ Reconnect:
 		realtime.ETHBTC,
 	}
 
-	// 購読チャンネルをbitbankに通知
-	c.SetSubscribes(channels, pairs)
-	// Readを整備
-	go c.Realtime()
+	// 購読チャンネルをbitbankに通知し購読開始
+	go c.Realtime(channels, pairs)
 
 	for {
 		select {
-		case v := <-c.Subscriber:
-			switch v.(type) {
-			case depth.Depth:
-				fmt.Printf("%+v\n", v)
-			case depth.DepthDiff:
-				fmt.Printf("%+v\n", v)
-			case transaction.Transactions:
-				fmt.Printf("%+v\n", v)
-			case ticker.Ticker:
-				fmt.Printf("%+v\n", v)
+		case v := <-ws.Subscriber:
+			switch v.Types {
+			case realtime.TypeDepthAll:
+				// e.B.Set(true, v.Depth)
+				// fmt.Println("depth all\n")
+			case realtime.TypeDepthDiff:
+				go e.B.Set(false, v.Depth)
+				// e.BestPrice()
+				// fmt.Printf("diff: %+v\n", v)
+				// fmt.Println("depth diff")
 
-			case error:
-				if strings.HasSuffix(d.Error(), "close 1005 (no status)") {
-					log.Error("reconnect gets websocket: ", d.Error())
-					ws.Close()
-					goto Break
-				}
-				goto EndF
+			case realtime.TypeTransactions:
+				// go e.Set(v.Transactions)
+				// fmt.Printf("%.f, delay: %v\n", e.LTP, e.Delay)
+				go fmt.Printf("transaction: LTP %f\n", v.Transactions[0].Price)
+			case realtime.TypeTicker:
+			case realtime.TypeError:
+				wsError <- v.Error
 			}
 		}
 	}
 
-Break: // Reconnect用
-	c.Close()
+	err = <-wsError
+	log.Error(err)
+	ws.Close()
+	time.Sleep(3 * time.Second)
 	goto Reconnect
-
-EndF: // ほんちゃんErrorのほう（done <- errors.New()でもOK）
-	c.Close()
 }
 ```
 

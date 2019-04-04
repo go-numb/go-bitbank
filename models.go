@@ -25,7 +25,7 @@ type Client struct {
 
 	Transactions *transaction.Request
 	Depth        *depth.Request
-	Ticker       *ticker.Request
+	Tickers      *ticker.Request
 	OHLCV        *ohlcv.Request
 
 	Auth *private.Auth
@@ -40,7 +40,7 @@ func New(token, secret string) *Client {
 
 		Transactions: &transaction.Request{},
 		Depth:        &depth.Request{},
-		Ticker:       &ticker.Request{},
+		Tickers:      &ticker.Request{},
 		OHLCV:        &ohlcv.Request{},
 
 		Auth: private.New(token, secret),

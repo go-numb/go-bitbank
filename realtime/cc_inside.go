@@ -3,13 +3,59 @@ package realtime
 import (
 	"fmt"
 
+	"github.com/go-numb/go-bitbank/depths"
+	"github.com/go-numb/go-bitbank/ohlcv"
+	"github.com/go-numb/go-bitbank/transactions"
+
+	ticker "github.com/go-numb/go-bitbank/tickers"
 	"github.com/gorilla/websocket"
 )
 
 type Client struct {
 	conn *websocket.Conn
 
-	Subscriber chan interface{}
+	// old↓
+	// Subscriber chan interface{}
+	// New↓
+	Subscriber chan Recive
+	Done       chan error
+}
+
+type Types int
+type Pairs int
+
+const (
+	// Channel prefix
+	TypeError Types = iota
+	TypeTicker
+	TypeDepthAll
+	TypeDepthDiff
+	TypeTransactions
+	TypeCandlestick
+)
+
+const (
+	// Pairs btc_jpy, xrp_jpy, ltc_btc, eth_btc, mona_jpy, mona_btc, bcc_jpy, bcc_btc
+	PairBTCJPY Pairs = iota
+	PairXRPJPY
+	PairBCCJPY
+	PairMNAJPY
+
+	PairETHBTC
+	PairLTCBTC
+	PairMNABTC
+	PairBCCBTC
+)
+
+type Recive struct {
+	Types Types // int
+	Pairs Pairs // int
+
+	Transactions transaction.Transactions
+	Depth        depth.Depth
+	Tickers      ticker.Ticker
+	OHLCV        ohlcv.OHLCVs
+	Error        error
 }
 
 func (ws *Client) Ping() error {
