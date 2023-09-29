@@ -18,7 +18,9 @@ import (
 	"gonum.org/v1/gonum/stat"
 )
 
-/* # Public Test
+/*
+	# Public Test
+
 - Transactions: 約定
 - Depth: Books/Orderbook
 - Ticker: ...
@@ -80,8 +82,8 @@ func TestDepth(t *testing.T) {
 func TestTicker(t *testing.T) {
 	c := New("", "")
 
-	c.Ticker.Set("btc_jpy")
-	res, err := c.Ticker.Get()
+	c.Tickers.Set("btc_jpy")
+	res, err := c.Tickers.Get()
 	if err != nil {
 		t.Error(err)
 	}

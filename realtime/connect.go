@@ -17,7 +17,7 @@ import (
 
 	depth "github.com/go-numb/go-bitbank/depths"
 	ticker "github.com/go-numb/go-bitbank/tickers"
-	"github.com/go-numb/go-bitbank/transactions"
+	transaction "github.com/go-numb/go-bitbank/transactions"
 
 	"github.com/buger/jsonparser"
 	"github.com/gorilla/websocket"
@@ -105,7 +105,7 @@ const (
 )
 
 // SetSubscribes sets to ws write
-func (ws *Client) setSubscribes(chs, pairs []string) error {
+func (ws *Client) SetSubscribes(chs, pairs []string) error {
 	for _, v := range chs {
 		switch {
 		case strings.HasPrefix(ChTicker, v):
@@ -145,7 +145,7 @@ func (ws *Client) setSubscribes(chs, pairs []string) error {
 func (p *Client) Realtime(chs, pairs []string) {
 	done := make(chan error)
 	fmt.Printf("subscribes: %+v,%+v\n", chs, pairs)
-	if err := p.setSubscribes(chs, pairs); err != nil {
+	if err := p.SetSubscribes(chs, pairs); err != nil {
 		p.Subscriber <- Recive{
 			Types: TypeError,
 			Error: err,
