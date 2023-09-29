@@ -102,29 +102,33 @@ func TestRealtime(t *testing.T) {
 		XRPJPY,
 		ETHBTC,
 	}
-	c.setSubscribes(channels, pairs)
+	c.SetSubscribes(channels, pairs)
 	go c.Realtime(channels, pairs)
+	defer c.Close()
 
-	for {
-		select {
-		case v := <-c.Subscriber:
-			fmt.Printf("%#v\n", v)
-			// switch v.(type) {
-			// case depth.Depth:
-			// 	fmt.Printf("%+v\n", v)
-			// case depth.DepthDiff:
-			// 	fmt.Printf("%+v\n", v)
-			// case transaction.Transactions:
-			// 	fmt.Printf("%+v\n", v)
-			// case ticker.Ticker:
-			// 	fmt.Printf("%+v\n", v)
+EndF:
+	for v := range c.Subscriber {
+		switch v.Types {
+		case TypeDepthAll:
+			fmt.Printf("depth all: %+v\n", v.Depth)
+		case TypeDepthDiff:
+			fmt.Printf("depth diff: %+v\n", v.Depth)
+		case TypeTicker:
+			fmt.Printf("ticker: %+v\n", v.Tickers)
+		case TypeCandlestick:
+			fmt.Printf("candle: %+v\n", v.OHLCV)
+		case TypeTransactions:
+			fmt.Printf("transaction: %+v\n", v.Transactions)
 
-			// case error:
-			// 	goto EndF
-			// }
+		case TypeError:
+			break EndF
 		}
 	}
 
-	// EndF:
-	c.Close()
+	// 実行プリント
+	// 	ticker: {Code:0 Sell:4.029001e+06 Buy:4.029e+06 High:4.055e+06 Low:3.946e+06 Last:4.029001e+06 Vol:305.8786 Timestamp:{Time:2023-09-29 14:44:56.608 +0900 JST}}
+	// ticker: {Code:0 Sell:75.972 Buy:75.971 High:76.466 Low:74.1 Last:75.973 Vol:5.5717360327e+06 Timestamp:{Time:2023-09-29 14:44:56.176 +0900 JST}}
+	// depth diff: {Code:0 Asks:{Books:[]} Bids:{Books:[{Price:4.02701e+06 Size:0}]} Timestamp:{Time:2023-09-29 14:44:58.003 +0900 JST}}
+
+	log.Fatal("END")
 }
