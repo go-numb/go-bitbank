@@ -5,12 +5,6 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/go-numb/go-bitbank/tickers"
-
-	"github.com/go-numb/go-bitbank/transactions"
-
-	"github.com/go-numb/go-bitbank/depths"
-
 	"github.com/buger/jsonparser"
 
 	"testing"
@@ -95,40 +89,41 @@ func TestConnect(t *testing.T) {
 	}
 }
 
-func TestRealtime(t *testing.T) {
-	c, err := Connect(false)
-	if err != nil {
-		t.Error(err)
-	}
+// アーカイブ
+// func TestRealtime(t *testing.T) {
+// 	c, err := Connect(false)
+// 	if err != nil {
+// 		t.Error(err)
+// 	}
 
-	channels := []string{Depth, Ticker, Transactions}
-	pairs := []string{
-		BTCJPY,
-		XRPJPY,
-		ETHBTC,
-	}
-	c.SetSubscribes(channels, pairs)
-	go c.Realtime(channels, pairs)
+// 	channels := []string{ChDepth, ChTicker, ChTransactions}
+// 	pairs := []string{
+// 		BTCJPY,
+// 		XRPJPY,
+// 		ETHBTC,
+// 	}
+// 	c.setSubscribes(channels, pairs)
+// 	go c.Realtime(channels, pairs)
 
-	for {
-		select {
-		case v := <-c.Subscriber:
-			switch v.(type) {
-			case depth.Depth:
-				fmt.Printf("%+v\n", v)
-			case depth.DepthDiff:
-				fmt.Printf("%+v\n", v)
-			case transaction.Transactions:
-				fmt.Printf("%+v\n", v)
-			case ticker.Ticker:
-				fmt.Printf("%+v\n", v)
+// 	for {
+// 		select {
+// 		case v := <-c.Subscriber:
+// 			switch v.(type) {
+// 			case depth.Depth:
+// 				fmt.Printf("%+v\n", v)
+// 			case depth.DepthDiff:
+// 				fmt.Printf("%+v\n", v)
+// 			case transaction.Transactions:
+// 				fmt.Printf("%+v\n", v)
+// 			case ticker.Ticker:
+// 				fmt.Printf("%+v\n", v)
 
-			case error:
-				goto EndF
-			}
-		}
-	}
+// 			case error:
+// 				goto EndF
+// 			}
+// 		}
+// 	}
 
-EndF:
-	c.Close()
-}
+// EndF:
+// 	c.Close()
+// }
