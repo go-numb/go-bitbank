@@ -32,18 +32,17 @@ func TestConnect(t *testing.T) {
 	go func() {
 		ticker20s := time.NewTicker(20 * time.Second)
 		for {
-			select {
-			case <-ticker20s.C:
-				if err := p.Ping(); err != nil {
-					log.Error(err)
-				}
+			<-ticker20s.C
+			if err := p.Ping(); err != nil {
+				log.Error(err)
 			}
+
 		}
 	}()
 
 	paths := [][]string{
-		[]string{"room_name"},
-		[]string{"message", "data"},
+		{"room_name"},
+		{"message", "data"},
 	}
 
 	for {

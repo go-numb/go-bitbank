@@ -29,10 +29,6 @@ const (
 	WriteTimeoutSecond      time.Duration = 5
 )
 
-type Request struct {
-	subscribeChannels []string
-}
-
 func Connect(isPublic bool) (*Client, error) {
 	if isPublic {
 		return nil, errors.New("not set")
@@ -163,12 +159,10 @@ func (p *Client) Realtime(chs, pairs []string) {
 		var tickerPong = time.NewTicker(HeartbeatIntervalSecond * time.Second)
 		defer tickerPong.Stop()
 		for {
-			select {
-			case <-tickerPong.C:
-				p.conn.SetWriteDeadline(time.Now().Add(WriteTimeoutSecond * time.Second))
-				if err := p.Ping(); err != nil {
-					done <- err
-				}
+			<-tickerPong.C
+			p.conn.SetWriteDeadline(time.Now().Add(WriteTimeoutSecond * time.Second))
+			if err := p.Ping(); err != nil {
+				done <- err
 			}
 		}
 	}()
