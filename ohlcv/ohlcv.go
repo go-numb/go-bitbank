@@ -36,9 +36,9 @@ const (
 type Request struct {
 	// btc_jpy, xrp_jpy, ltc_btc, eth_btc, mona_jpy, mona_btc, bcc_jpy, bcc_btc
 	Pair string
-	// Timespan
+	// Timespan as candle-type
 	Timespan string
-	// YYYMMDD string
+	// YYYY or YYYYMMDD string
 	AtDate string
 }
 

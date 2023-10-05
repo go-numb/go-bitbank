@@ -209,8 +209,6 @@ func Handler(bitbankCode int, err error) error {
 	case E70011:
 		return e.Wrap(err, "ただいまリクエストが混雑してます。しばらく時間を空けてから再度リクエストをお願いします")
 
-	default:
-		return e.Wrapf(err, "undefined error code %d", bitbankCode)
 	}
 
 	return e.Wrapf(err, "undefined error %d", bitbankCode)

@@ -23,6 +23,7 @@ type Request struct {
 	// btc_jpy, xrp_jpy, ltc_btc, eth_btc, mona_jpy, mona_btc, bcc_jpy, bcc_btc
 	Pair string
 }
+
 type Response struct {
 	Success int   `json:"success"`
 	Data    Depth `json:"data"`
