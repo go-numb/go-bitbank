@@ -93,15 +93,22 @@ const (
 	DepthDiff = "diff_"
 
 	// Pairs btc_jpy, xrp_jpy, ltc_btc, eth_btc, mona_jpy, mona_btc, bcc_jpy, bcc_btc
-	BTCJPY = "btc_jpy"
-	XRPJPY = "xrp_jpy"
-	BCCJPY = "bcc_jpy"
-	MNAJPY = "mona_jpy"
+	BTCJPY  = "btc_jpy"
+	XRPJPY  = "xrp_jpy"
+	LTCJPY  = "ltc_jpy"
+	BCCJPY  = "bcc_jpy"
+	ADAJPY  = "ada_jpy"
+	LINKJPY = "link_jpy"
+	MATCJPY = "matic_jpy"
+	MNAJPY  = "mona_jpy"
 
-	ETHBTC = "eth_btc"
-	LTCBTC = "ltc_btc"
-	MNABTC = "mona_btc"
-	BCCBTC = "bcc_btc"
+	ETHBTC  = "eth_btc"
+	XRPBTC  = "xrp_btc"
+	LTCBTC  = "ltc_btc"
+	BCCBTC  = "bcc_btc"
+	LINKBTC = "link_btc"
+	MATCBTC = "matic_btc"
+	MNABTC  = "mona_btc"
 )
 
 // SetSubscribes sets to ws write
