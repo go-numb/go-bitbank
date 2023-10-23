@@ -14,6 +14,7 @@ $ go get -u github.com/go-numb/go-bitbank
 
 ## PublicAPI
 ``` go
+// Versoin1  since2019
 package main
 
 import (
@@ -37,9 +38,40 @@ func main() {
 }
 ```
 
+```go 
+// Versoin.2 Since2023.11
+package main
+
+func main() {
+	c := New(nil)
+	res, err := c.Depth(&depth.Request{
+		Pair: "btc_jpy",
+	})
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	fmt.Printf("Success: %+v\n", res)
+
+	// 指定枚数以上の板をリストアップ
+	depths := res.Data.Wall(5)
+
+	fmt.Println("Ask wall: ")
+	for i := 0; i < len(depths.Asks.Books); i++ {
+		fmt.Printf("%f: %f\n", depths.Asks.Books[i].Price, depths.Asks.Books[i].Size)
+	}
+	for i := 0; i < len(depths.Bids.Books); i++ {
+		fmt.Printf("%f: %f\n", depths.Bids.Books[i].Price, depths.Bids.Books[i].Size)
+	}
+
+}
+
+```
+
 ## PrivateAPI
 
 ``` go
+// Version.1 Since2019
 package main
 
 import (
@@ -70,6 +102,25 @@ func main() {
 
 	doSomething()
 }
+```
+
+```go 
+// Version.2 Since2023.11
+package main
+
+func main() {
+	c := New(&auth.Config{
+		Key:    "[Account APIKEY]",
+		Secret: "[Account APISECRETKEY]",
+	})
+	res, err := c.Assets(&assets.Request{})
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	fmt.Printf("Success: %+v\n", res)
+}
+
 ```
 
 ## websocket/realtime
