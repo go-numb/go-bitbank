@@ -36,6 +36,10 @@ func (req *Request) Endpoint() string {
 	return types.ENDPOINTPUBLIC
 }
 
+func (req *Request) IsAuth() bool {
+	return false
+}
+
 func (req *Request) Path() string {
 	term := fmt.Sprintf(
 		"%d%02d%02d",

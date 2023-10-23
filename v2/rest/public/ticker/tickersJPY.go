@@ -18,6 +18,10 @@ func (req *RequestForTickersJPY) Endpoint() string {
 	return types.ENDPOINTPUBLIC
 }
 
+func (req *RequestForTickersJPY) IsAuth() bool {
+	return false
+}
+
 func (req *RequestForTickersJPY) Path() string {
 	return "tickers_jpy"
 }

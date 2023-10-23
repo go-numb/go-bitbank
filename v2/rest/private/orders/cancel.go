@@ -21,6 +21,10 @@ func (req *RequestForCancel) Endpoint() string {
 	return types.ENDPOINTPRIVATE
 }
 
+func (req *RequestForCancel) IsAuth() bool {
+	return true
+}
+
 func (req *RequestForCancel) Path() string {
 	return "user/spot/cancel_order"
 }

@@ -35,6 +35,10 @@ func (req *Request) Endpoint() string {
 	return types.ENDPOINTPUBLIC
 }
 
+func (req *Request) IsAuth() bool {
+	return false
+}
+
 func (req *Request) Path() string {
 	return path.Join(req.Pair, "ticker")
 }

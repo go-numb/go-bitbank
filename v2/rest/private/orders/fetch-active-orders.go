@@ -32,6 +32,10 @@ func (req *RequestForFetchActiveOrders) Endpoint() string {
 	return types.ENDPOINTPRIVATE
 }
 
+func (req *RequestForFetchActiveOrders) IsAuth() bool {
+	return true
+}
+
 func (req *RequestForFetchActiveOrders) Path() string {
 	return "user/spot/active_orders"
 }

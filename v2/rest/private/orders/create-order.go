@@ -52,6 +52,10 @@ func (req *RequestForCreateOrder) Endpoint() string {
 	return types.ENDPOINTPRIVATE
 }
 
+func (req *RequestForCreateOrder) IsAuth() bool {
+	return true
+}
+
 func (req *RequestForCreateOrder) Path() string {
 	return "user/spot/order"
 }

@@ -25,6 +25,10 @@ func (req *RequestForTickers) Endpoint() string {
 	return types.ENDPOINTPUBLIC
 }
 
+func (req *RequestForTickers) IsAuth() bool {
+	return false
+}
+
 func (req *RequestForTickers) Path() string {
 	return "tickers"
 }

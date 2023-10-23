@@ -13,6 +13,7 @@ import (
 
 type Requester interface {
 	Endpoint() string
+	IsAuth() bool
 	Path() string
 	Method() string
 	Query() string
@@ -53,7 +54,7 @@ func (p *Client) newRequest(r Requester) *http.Request {
 		return nil
 	}
 
-	if p.Auth != nil {
+	if r.IsAuth() {
 		auth.MakeHeader(p.Auth.Key, p.Auth.Secret, body, req)
 		if req == nil {
 			log.Debug().Str("creates request", "error")

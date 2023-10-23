@@ -36,6 +36,10 @@ func (req *Request) Endpoint() string {
 	return types.ENDPOINTPRIVATE
 }
 
+func (req *Request) IsAuth() bool {
+	return true
+}
+
 func (req *Request) Path() string {
 	return "user/spot/order"
 }
