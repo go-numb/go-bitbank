@@ -22,14 +22,21 @@ type Data struct {
 }
 
 type Order struct {
-	Asset           string  `json:"asset"`
-	AmountPrecision int8    `json:"amount_precision"`
-	OnhandAmount    float64 `json:"onhand_amount,string"`
-	LockedAmount    float64 `json:"locked_amount,string"`
-	FreeAmount      float64 `json:"free_amount,string"`
-	StopDeposit     bool    `json:"stop_deposit"`
-	StopWithdrawal  bool    `json:"stop_withdrawal"`
-	WithdrawalFee   any     `json:"withdrawal_fee"`
+	OrderID         int64  `json:"order_id"`
+	Pair            string `json:"pair"`
+	Side            string `json:"side"`
+	Type            string `json:"type"`
+	StartAmount     string `json:"start_amount"`
+	RemainingAmount string `json:"remaining_amount"`
+	ExecutedAmount  string `json:"executed_amount"`
+	Price           string `json:"price,omitempty"`
+	PostOnly        bool   `json:"post_only,omitempty"`
+	AveragePrice    string `json:"average_price"`
+	OrderedAt       int64  `json:"ordered_at"`
+	ExpireAt        int64  `json:"expire_at,omitempty"`
+	TriggeredAt     int64  `json:"triggered_at,omitempty"`
+	TriggerPrice    string `json:"trigger_price,omitempty"`
+	Status          string `json:"status"`
 }
 
 func (req *Request) Endpoint() string {
