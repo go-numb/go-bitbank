@@ -9,7 +9,7 @@ import (
 
 type RequestForCancel struct {
 	Pair    string `json:"pair"`
-	OrderID int    `json:"order_id"`
+	OrderID int64  `json:"order_id"`
 }
 
 type ResponseForCancel struct {

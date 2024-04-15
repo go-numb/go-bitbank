@@ -8,8 +8,8 @@ import (
 )
 
 type RequestForFetchOrders struct {
-	Pair     string `json:"pair"`
-	OrderIDs []int  `json:"order_ids"`
+	Pair     string  `json:"pair"`
+	OrderIDs []int64 `json:"order_ids"`
 }
 
 type ResponseForFetchOrders struct {

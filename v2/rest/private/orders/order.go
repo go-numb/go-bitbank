@@ -8,7 +8,7 @@ import (
 
 type Request struct {
 	Pair    string `json:"pair"`
-	OrderID int    `json:"order_id"`
+	OrderID int64  `json:"order_id"`
 }
 
 type Response struct {
