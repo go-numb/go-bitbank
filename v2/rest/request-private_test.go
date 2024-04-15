@@ -8,6 +8,7 @@ import (
 	"github.com/go-numb/go-bitbank/v2/rest/private/assets"
 	"github.com/go-numb/go-bitbank/v2/rest/private/deposit"
 	"github.com/go-numb/go-bitbank/v2/rest/private/orders"
+	"github.com/go-numb/go-bitbank/v2/rest/private/pairs"
 	"github.com/go-numb/go-bitbank/v2/rest/private/trades"
 	"github.com/stretchr/testify/assert"
 )
@@ -16,6 +17,17 @@ const (
 	KEY    = ""
 	SECRET = ""
 )
+
+func TestPairs(t *testing.T) {
+	c := New(nil)
+	res, err := c.Pairs(&pairs.Request{})
+	if err != nil {
+		t.Fatal(err)
+	}
+	assert.NoError(t, err)
+
+	fmt.Printf("Success: %+v\n", res)
+}
 
 func TestAssets(t *testing.T) {
 	c := New(&auth.Config{

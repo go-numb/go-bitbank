@@ -4,8 +4,17 @@ import (
 	"github.com/go-numb/go-bitbank/v2/rest/private/assets"
 	"github.com/go-numb/go-bitbank/v2/rest/private/deposit"
 	"github.com/go-numb/go-bitbank/v2/rest/private/orders"
+	"github.com/go-numb/go-bitbank/v2/rest/private/pairs"
 	"github.com/go-numb/go-bitbank/v2/rest/private/trades"
 )
+
+func (p *Client) Pairs(req *pairs.Request) (*pairs.Response, error) {
+	results := new(pairs.Response)
+	if err := p.request(req, results); err != nil {
+		return nil, err
+	}
+	return results, nil
+}
 
 func (p *Client) Assets(req *assets.Request) (*assets.Response, error) {
 	results := new(assets.Response)
