@@ -10,8 +10,8 @@ import (
 
 type Request struct {
 	Pair      string    `url:"pair"`
-	Count     int       `url:"count,omitempty"`
-	OrderID   int       `url:"order_id,omitempty"`
+	Count     int64     `url:"count,omitempty"`
+	OrderID   int64     `url:"order_id,omitempty"`
 	Since     time.Time `url:"-"`
 	End       time.Time `url:"-"`
 	SinceUnix int64     `url:"since,omitempty"`
@@ -30,8 +30,8 @@ type Data struct {
 }
 
 type Trade struct {
-	TradeID        int        `json:"trade_id"`
-	OrderID        int        `json:"order_id"`
+	TradeID        int64      `json:"trade_id"`
+	OrderID        int64      `json:"order_id"`
 	Pair           string     `json:"pair"`
 	Type           string     `json:"type"`
 	Side           string     `json:"side"`

@@ -10,8 +10,8 @@ import (
 
 type RequestForFetchActiveOrders struct {
 	Pair      string    `url:"pair"`
-	Count     int       `url:"count,omitempty"`
-	FromID    int       `url:"from_id,omitempty"`
+	Count     int64     `url:"count,omitempty"`
+	FromID    int64     `url:"from_id,omitempty"`
 	Since     time.Time `url:"-"`
 	End       time.Time `url:"-"`
 	SinceUnix int64     `url:"since,omitempty"`

@@ -28,7 +28,7 @@ type WrapForCreateOrder struct {
 }
 
 type OrderForCreateOrder struct {
-	OrderID int    `json:"order_id"`
+	OrderID int64  `json:"order_id"`
 	Pair    string `json:"pair"`
 	Side    string `json:"side"`
 	Type    string `json:"type"`
