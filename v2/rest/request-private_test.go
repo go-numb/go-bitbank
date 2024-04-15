@@ -26,6 +26,10 @@ func TestPairs(t *testing.T) {
 	}
 	assert.NoError(t, err)
 
+	for _, v := range res.Data.Pairs {
+		fmt.Printf("Success: %s, %s, %f, %f\n", v.Name, v.UnitAmount, v.PriceDigits, v.AmountDigits)
+	}
+
 	fmt.Printf("Success: %+v\n", res)
 }
 

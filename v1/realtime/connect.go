@@ -72,6 +72,8 @@ func (p *Client) Close() error {
 		return err
 	}
 
+	time.Sleep(5 * time.Second)
+
 	close(p.Subscriber)
 
 	return nil
