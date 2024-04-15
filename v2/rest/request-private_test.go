@@ -102,7 +102,7 @@ func TestFetchOrders(t *testing.T) {
 	})
 	res, err := c.FetchOrders(&orders.RequestForFetchOrders{
 		Pair:     "btc_jpy",
-		OrderIDs: []int{0, 1},
+		OrderIDs: []int64{0, 1},
 	})
 	if err != nil {
 		t.Fatal(err)
