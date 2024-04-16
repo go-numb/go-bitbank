@@ -16,6 +16,7 @@ type Response struct {
 }
 
 type Data struct {
+	Code  uint32 `json:"code"`
 	Pairs []Pair `json:"pairs"`
 }
 

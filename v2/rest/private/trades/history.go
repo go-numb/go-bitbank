@@ -26,7 +26,7 @@ type Response struct {
 
 type Data struct {
 	Code   uint32  `json:"code"`
-	Trades []Trade `json:"trade"`
+	Trades []Trade `json:"trades"`
 }
 
 type Trade struct {

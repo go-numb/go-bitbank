@@ -1,14 +1,16 @@
 package orders
 
 import (
+	"fmt"
 	"net/http"
 
 	"github.com/go-numb/go-bitbank/v2/types"
+	"github.com/google/go-querystring/query"
 )
 
 type Request struct {
-	Pair    string `json:"pair"`
-	OrderID int64  `json:"order_id"`
+	Pair    string `json:"pair" url:"pair,omitempty"`
+	OrderID int64  `json:"order_id" url:"order_id,omitempty"`
 }
 
 type Response struct {
@@ -17,8 +19,8 @@ type Response struct {
 }
 
 type Data struct {
-	Code   uint32 `json:"code"`
-	Orders Order  `json:"order"`
+	Code uint32 `json:"code"`
+	Order
 }
 
 type Order struct {
@@ -56,7 +58,14 @@ func (req *Request) Method() string {
 }
 
 func (req *Request) Query() string {
-	return ""
+	v, err := query.Values(req)
+	if err != nil {
+		return ""
+	}
+
+	fmt.Println("Query: ", v.Encode())
+
+	return v.Encode()
 }
 
 func (req *Request) Payload() []byte {

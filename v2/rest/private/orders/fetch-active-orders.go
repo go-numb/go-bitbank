@@ -24,8 +24,7 @@ type ResponseForFetchActiveOrders struct {
 }
 
 type DataForFetchActiveOrders struct {
-	Code   uint32                `json:"code"`
-	Orders []OrderForCreateOrder `json:"order"`
+	Orders []OrderForCreateOrder `json:"orders"`
 }
 
 func (req *RequestForFetchActiveOrders) Endpoint() string {

@@ -13,13 +13,13 @@ type RequestForFetchOrders struct {
 }
 
 type ResponseForFetchOrders struct {
-	Success int8 `json:"success"`
-	Data    Data `json:"data"`
+	Success int8               `json:"success"`
+	Data    DataForFetchOrders `json:"data"`
 }
 
 type DataForFetchOrders struct {
 	Code   uint32                `json:"code"`
-	Orders []OrderForCreateOrder `json:"order"`
+	Orders []OrderForCreateOrder `json:"orders"`
 }
 
 func (req *RequestForFetchOrders) Endpoint() string {

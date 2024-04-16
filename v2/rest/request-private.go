@@ -110,7 +110,7 @@ func (p *Client) FetchActiveOrders(req *orders.RequestForFetchActiveOrders) (*or
 	// StatusCode == 200 かつ err == nilだが、response body内success表記が成功してない場合
 	if results.Success != 1 {
 		return nil, &APIError{
-			Status:  results.Data.Code,
+			// Status:  results.Data.Code,
 			Message: "response fail",
 		}
 	}

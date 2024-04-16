@@ -52,7 +52,10 @@ func TestOrders(t *testing.T) {
 		Key:    KEY,
 		Secret: SECRET,
 	})
-	res, err := c.Orders(&orders.Request{})
+	res, err := c.Orders(&orders.Request{
+		Pair:    "rndr_jpy",
+		OrderID: 0,
+	})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -88,7 +91,7 @@ func TestCancel(t *testing.T) {
 		Secret: SECRET,
 	})
 	res, err := c.Cancel(&orders.RequestForCancel{
-		Pair:    "btc_jpy",
+		Pair:    "rndr_jpy",
 		OrderID: 0,
 	})
 	if err != nil {
@@ -105,8 +108,8 @@ func TestFetchOrders(t *testing.T) {
 		Secret: SECRET,
 	})
 	res, err := c.FetchOrders(&orders.RequestForFetchOrders{
-		Pair:     "btc_jpy",
-		OrderIDs: []int64{0, 1},
+		Pair:     "rndr_jpy",
+		OrderIDs: []int64{35247868021, 1},
 	})
 	if err != nil {
 		t.Fatal(err)
@@ -122,7 +125,7 @@ func TestFetchActiveOrders(t *testing.T) {
 		Secret: SECRET,
 	})
 	res, err := c.FetchActiveOrders(&orders.RequestForFetchActiveOrders{
-		Pair: "btc_jpy",
+		Pair: "rndr_jpy",
 		// Count:  0,
 		// FromID: 0,
 		// Since:  time.Now().Add(-24 * 30 * time.Hour),
