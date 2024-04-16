@@ -72,10 +72,6 @@ func (p *Client) Close() error {
 		return err
 	}
 
-	time.Sleep(5 * time.Second)
-
-	close(p.Subscriber)
-
 	return nil
 }
 
@@ -259,6 +255,7 @@ func (p *Client) Realtime(chs, pairs []string) {
 	}()
 
 	err := <-done
+	// conform channnel close
 	p.Subscriber <- Recive{
 		Types: TypeError,
 		Error: errors.Wrap(err, "websocket error, "),
