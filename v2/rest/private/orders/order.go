@@ -1,7 +1,6 @@
 package orders
 
 import (
-	"fmt"
 	"net/http"
 
 	"github.com/go-numb/go-bitbank/v2/types"
@@ -62,8 +61,6 @@ func (req *Request) Query() string {
 	if err != nil {
 		return ""
 	}
-
-	fmt.Println("Query: ", v.Encode())
 
 	return v.Encode()
 }
