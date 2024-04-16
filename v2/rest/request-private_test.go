@@ -67,11 +67,11 @@ func TestCreateOrder(t *testing.T) {
 		Secret: SECRET,
 	})
 	res, err := c.CreateOrder(&orders.RequestForCreateOrder{
-		Pair:     "btc_jpy",
+		Pair:     "rndr_jpy",
 		Type:     "limit",
 		Side:     "buy",
 		Amount:   0.01,
-		Price:    4400000,
+		Price:    1240.00,
 		PostOnly: true,
 	})
 	if err != nil {

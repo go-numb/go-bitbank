@@ -18,16 +18,12 @@ type RequestForCreateOrder struct {
 }
 
 type ResponseForCreateOrder struct {
-	Success int8               `json:"success"`
-	Data    WrapForCreateOrder `json:"data"`
-}
-
-type WrapForCreateOrder struct {
-	Code   uint32              `json:"code"`
-	Orders OrderForCreateOrder `json:"order"`
+	Success int8                `json:"success"`
+	Data    OrderForCreateOrder `json:"data"`
 }
 
 type OrderForCreateOrder struct {
+	Code    uint32 `json:"code"`
 	OrderID int64  `json:"order_id"`
 	Pair    string `json:"pair"`
 	Side    string `json:"side"`
