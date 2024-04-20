@@ -35,11 +35,11 @@ type Trade struct {
 	Pair           string     `json:"pair"`
 	Type           string     `json:"type"`
 	Side           string     `json:"side"`
-	Price          float64    `json:"price"`
-	Amount         float64    `json:"amount"`
+	Price          string     `json:"price"`
+	Amount         string     `json:"amount"`
 	MakerTaker     string     `json:"maker_taker"`
-	FeeAmountBase  float64    `json:"fee_amount_base"`
-	FeeAmountQuote float64    `json:"fee_amount_quote"`
+	FeeAmountBase  string     `json:"fee_amount_base"`
+	FeeAmountQuote string     `json:"fee_amount_quote"`
 	ExecutedAt     types.Time `json:"executed_at"`
 }
 

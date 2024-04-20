@@ -33,7 +33,7 @@ func (p *Client) Assets(req *assets.Request) (*assets.Response, error) {
 	return results, nil
 }
 
-func (p *Client) Orders(req *orders.Request) (*orders.Response, error) {
+func (p *Client) Order(req *orders.Request) (*orders.Response, error) {
 	results := new(orders.Response)
 	if err := p.request(req, results); err != nil {
 		return nil, err

@@ -8,8 +8,8 @@ import (
 )
 
 type Request struct {
-	Pair    string `json:"pair" url:"pair,omitempty"`
-	OrderID int64  `json:"order_id" url:"order_id,omitempty"`
+	Pair    string `json:"pair" url:"pair"`
+	OrderID int64  `json:"order_id" url:"order_id"`
 }
 
 type Response struct {

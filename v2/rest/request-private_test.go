@@ -47,12 +47,12 @@ func TestAssets(t *testing.T) {
 	fmt.Printf("Success: %+v\n", res)
 }
 
-func TestOrders(t *testing.T) {
+func TestOrder(t *testing.T) {
 	c := New(&auth.Config{
 		Key:    KEY,
 		Secret: SECRET,
 	})
-	res, err := c.Orders(&orders.Request{
+	res, err := c.Order(&orders.Request{
 		Pair:    "rndr_jpy",
 		OrderID: 0,
 	})
@@ -136,7 +136,9 @@ func TestFetchActiveOrders(t *testing.T) {
 	}
 	assert.NoError(t, err)
 
-	fmt.Printf("Success: %+v\n", res)
+	for _, v := range res.Data.Orders {
+		fmt.Printf("Success: %d - %f, %s, %v\n", v.OrderID, v.Price, v.Status, v.OrderedAt)
+	}
 }
 
 func TestFetchTrades(t *testing.T) {
@@ -145,18 +147,17 @@ func TestFetchTrades(t *testing.T) {
 		Secret: SECRET,
 	})
 	res, err := c.FetchTrades(&trades.Request{
-		Pair: "btc_jpy",
+		Pair: "rndr_jpy",
 		// Count:  0,
 		// FromID: 0,
 		// Since:  time.Now().Add(-24 * 30 * time.Hour),
 		// End:    time.Now(),
 	})
-	if err != nil {
-		t.Fatal(err)
-	}
 	assert.NoError(t, err)
 
-	fmt.Printf("Success: %+v\n", res)
+	for _, v := range res.Data.Trades {
+		fmt.Printf("Success: %d - %s, %d, %v\n", v.OrderID, v.Price, v.TradeID, v.ExecutedAt)
+	}
 }
 
 func TestFetchDeposits(t *testing.T) {
